@@ -50,3 +50,40 @@ def registro_lectura():
     if not data or 'tipoSensor' not in data or 'fechaHora' not in data:
         return jsonify({"error": "Datos faltantes"}), 400
     return jsonify(LecturasService.registro_lectura(data["tipoSensor"],data["fechaHora"]))
+
+@lecturas_bp.route('/consulta/<int:id>',methods = ['GET'])
+@swag_from({
+    'summary': 'Consultar 3 minutos de lectura de sensor',
+    'description': 'Este endpoint consulta los últimos 3 minutos de lectura de un sensor en la base de datos.',
+    'parameters': [
+        {
+            'name': 'id',
+            'in': 'path',
+            'required': True,
+            'type': 'integer',
+            'example': 1
+        }
+    ],
+    'responses': {
+        200: {
+            'description': 'Consulta de lectura exitosa',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'mensaje': {'type': 'string', 'example': 'Consulta de lectura exitoso'}
+                }
+            }
+        },
+        400: {
+            'description': 'Solicitud incorrecta',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'error': {'type': 'string', 'example': 'Datos faltantes'}
+                }
+            }
+        }
+    }
+})
+def obtener_lecturas_sensor(id):
+    return jsonify(LecturasService.obtener_lecturas_sensor(id))

@@ -21,7 +21,8 @@ def generar_datos(sensor, conn):
     while True:
         fecha = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
         conn.send((sensor, fecha))
-        intervalo = random.uniform(300, 900)  # Entre 5 y 15 minutos
+        #intervalo = random.uniform(300, 900)  # Entre 5 y 15 minutos
+        intervalo = random.uniform(60, 180)  # Entre 1 y 3 minutos
         print(f"{sensor}: Dato generado a las {fecha}, siguiente en {intervalo / 60:.2f} minutos")
         time.sleep(intervalo)
 
