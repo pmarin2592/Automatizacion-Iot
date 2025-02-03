@@ -17,40 +17,8 @@ SENSORES = {
     "Humedad": 5
 }
 
-# Configuración del correo
-EMAIL_SENDER = "304600713@cuc.cr"
-EMAIL_PASSWORD = "Fullmetal2592$"
-EMAIL_RECEIVER = "304600713@cuc.cr"
-SMTP_SERVER = "smtp.office365.com"
-SMTP_PORT = 587
 
-def enviar_alerta(sensor, valor, umbral):
-    """Envía un correo si se detecta una anomalía en el sensor."""
-    try:
-        mensaje = MIMEMultipart()
-        mensaje["From"] = EMAIL_SENDER
-        mensaje["To"] = EMAIL_RECEIVER
-        mensaje["Subject"] = f"⚠️ Alerta de Consumo Anómalo en {sensor}"
-
-        cuerpo = f"Se detectó un pico de consumo en el sensor {sensor}.\n"
-        cuerpo += f"Valor detectado: {valor}\n"
-        cuerpo += f"Umbral permitido: {umbral}\n"
-        cuerpo += f"Hora: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
-
-        mensaje.attach(MIMEText(cuerpo, "plain"))
-
-        server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
-        server.starttls()
-        server.login(EMAIL_SENDER, EMAIL_PASSWORD)
-        server.sendmail(EMAIL_SENDER, EMAIL_RECEIVER, mensaje.as_string())
-        server.quit()
-
-        print(f"Correo de alerta enviado para {sensor}.")
-
-    except Exception as e:
-        print(f"Error enviando alerta: {e}")
-
-def detectar_anomalias(sensor, datos, umbral_factor=3):
+def detectar_anomalias_old(sensor, datos, umbral_factor=3):
     """Detecta anomalías usando el cálculo de Z-score."""
     if len(datos) < 5:  # Se necesita un mínimo de datos para el análisis
         return None
@@ -87,26 +55,46 @@ def obtener_datos(sensor_id):
         print(f"Error obteniendo datos de la API: {e}")
         return []
 
-def monitorear_sensor(sensor, sensor_id, umbral_factor=3):
+def detectar_anomalias(sensor, datos, umbral_factor=1.5):
+    """Detecta anomalías usando el rango intercuartilico (IQR)."""
+    if len(datos) < 5:
+        return None
+    
+    Q1 = np.percentile(datos, 25)  # Primer cuartil (Q1)
+    Q3 = np.percentile(datos, 75)  # Tercer cuartil (Q3)
+    IQR = Q3 - Q1  # Rango intercuartilico
+
+    limite_inferior = Q1 - umbral_factor * IQR
+    limite_superior = Q3 + umbral_factor * IQR
+
+    print(f"{sensor}: Q1={Q1}, Q3={Q3}, IQR={IQR}, Límite inferior={limite_inferior}, Límite superior={limite_superior}")
+
+    valores_anomalos = [valor for valor in datos if valor < limite_inferior or valor > limite_superior]
+
+    if valores_anomalos:
+        return valores_anomalos[0], limite_superior  # Devolver el primer valor anómalo encontrado
+
+    return None
+
+def monitorear_sensor(sensor, sensor_id, umbral_factor=1.2):
     """Monitorea un sensor en tiempo real, detectando anomalías y enviando alertas."""
     historial = []  # Lista para almacenar valores previos
 
     while True:
         print(f"Consultando datos para {sensor}...")
         datos = obtener_datos(sensor_id)
-
+       
         if datos:
             # Extraer los valores numéricos de cada diccionario en `datos`
             valores = [float(dato["Valor"]) for dato in datos]  # Convertimos los valores a flotantes
-
+            #print(f"{valores}")
             historial.extend(valores)
             historial = historial[-50:]  # Mantener solo las últimas 50 lecturas
 
             resultado = detectar_anomalias(sensor, historial, umbral_factor)
             if resultado:
                 valor_anomalo, umbral = resultado
-                print(f"⚠️ Anomalía detectada en {sensor}: {valor_anomalo} (umbral: {umbral})")
-                enviar_alerta(sensor, valor_anomalo, umbral)
+                print(f"⚠️ Anomalía detectada en {sensor}: {valor_anomalo} (umbral: {umbral})")              
             else:
                 print(f"{sensor} dentro de valores normales.")
         
