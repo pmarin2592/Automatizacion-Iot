@@ -4,7 +4,10 @@ import time
 import random
 from datetime import datetime
 
-# URL de la API
+# -------------------------------
+# 📌 CONFIGURACIÓN DEL SISTEMA DE SENSORES
+# -------------------------------
+# URL de la API para registrar datos de los sensores
 API_URL = "http://127.0.0.1:5000/lecturas/registro"
 
 # Mapeo de sensores a sus identificadores
@@ -15,7 +18,9 @@ SENSORES = {
     "Luz Ambiental": 4,
     "Humedad": 5
 }
-
+# -------------------------------
+# 🔄 GENERACIÓN DE DATOS DE SENSORES
+# -------------------------------
 def generar_datos(sensor, conn):
     """Genera datos para un sensor y los envía a través de un Pipe."""
     while True:
@@ -25,7 +30,9 @@ def generar_datos(sensor, conn):
         intervalo = random.uniform(60, 180)  # Entre 1 y 3 minutos
         print(f"{sensor}: Dato generado a las {fecha}, siguiente en {intervalo / 60:.2f} minutos")
         time.sleep(intervalo)
-
+# -------------------------------
+# 🚀 ENVÍO DE DATOS A LA API
+# -------------------------------
 def enviar_datos(conns):
     """Recibe datos del Pipe de todos los sensores y los envía a la API."""
     while True:
@@ -38,7 +45,9 @@ def enviar_datos(conns):
                     print(f"[Hilo {mp.current_process().name}] Enviado: {payload} - Estado: {response.status_code}")
                 except requests.exceptions.RequestException as e:
                     print(f"[Hilo {mp.current_process().name}] Error en la conexión: {e}")
-
+# -------------------------------
+# 🔄 CREACIÓN Y EJECUCIÓN DE PROCESOS
+# -------------------------------
 if __name__ == "__main__":
     procesos = []
     parent_conns = []
