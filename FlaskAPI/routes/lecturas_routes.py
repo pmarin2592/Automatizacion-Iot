@@ -109,3 +109,56 @@ def obtener_lecturas_sensor(id):
     - JSON con los datos de las lecturas del sensor especificado.
     """
     return jsonify(LecturasService.obtener_lecturas_sensor(id))
+
+@lecturas_bp.route('/consultaSensores/<string:fecInicio>/<string:fecFin>',methods = ['GET'])
+@swag_from({
+    'summary': 'Consultar 3 minutos de lectura de sensor',
+    'description': 'Este endpoint consulta  las lecturas de todolos sensores en un rango de fechas.',
+    'parameters': [
+        {
+            'name': 'fecInicio',
+            'in': 'path',
+            'required': True,
+            'type': 'string'
+        },
+         {
+            'name': 'fecFin',
+            'in': 'path',
+            'required': True,
+            'type': 'string'
+        }
+        
+    ],
+    'responses': {
+        200: {
+            'description': 'Consulta de lectura exitosa',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'mensaje': {'type': 'string', 'example': 'Consulta de lectura exitoso'}
+                }
+            }
+        },
+        400: {
+            'description': 'Solicitud incorrecta',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'error': {'type': 'string', 'example': 'Datos faltantes'}
+                }
+            }
+        }
+    }
+})
+def obtener_lecturas_sensor_fechas(fecInicio, fecFin):
+    """
+        Obtiene las lecturas de todolos sensores en un rango de fechas.
+
+        Parámetros:
+        - fec_inicio (date): fecha de incio 
+        - fec_fin (date): fecha de fin 
+
+        Retorna:
+        - list[dict]: Lista de lecturas en formato de diccionario o mensaje de error.
+    """
+    return jsonify(LecturasService.obtener_lecturas_sensor_fechas(fecInicio, fecFin))
