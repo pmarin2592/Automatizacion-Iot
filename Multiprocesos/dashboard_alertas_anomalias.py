@@ -6,9 +6,12 @@ import time
 import numpy as np
 from datetime import datetime
 
-
+# -------------------------------
+# 📌 CONFIGURACIÓN DEL DASHBOARD
+# -------------------------------
 # Configuración de la API y sensores
 API_URL = "http://127.0.0.1:5000/lecturas/consulta/"
+# Diccionario con los sensores disponibles y sus identificadores
 SENSORES = {
     "Temperatura": 1,
     "Consumo Eléctrico": 2,
@@ -17,14 +20,16 @@ SENSORES = {
     "Humedad": 5
 }
 
-# Crear la app Dash
+# Creación de la aplicación Dash
 app = dash.Dash(__name__)
 
-# Diseño del dashboard
+# -------------------------------
+# 📊 DISEÑO DEL DASHBOARD
+# -------------------------------
 app.layout = html.Div([
     html.H1("📊 Monitoreo de Sensores IoT"),
     
-    # Contenedores para cada sensor
+     # Se genera un contenedor para cada sensor con su respectivo gráfico y alerta
     *[
         html.Div([
             html.H3(sensor),
@@ -34,12 +39,18 @@ app.layout = html.Div([
         for sensor in SENSORES
     ],
     
-    # Intervalo de actualización cada 3 minutos
+    # Intervalo de actualización cada 1 minuto
     dcc.Interval(id="interval", interval=60 * 1000, n_intervals=0)
 ])
 
-# Función para obtener datos de la API
+# -------------------------------
+# 📥 FUNCIÓN PARA OBTENER DATOS
+# -------------------------------
 def obtener_datos(sensor_id):
+    """
+    Obtiene los datos del sensor desde la API.
+    Retorna una lista de tiempos y valores numéricos.
+    """
     try:
         response = requests.get(f"{API_URL}{sensor_id}")
         if response.status_code == 200:
@@ -52,8 +63,14 @@ def obtener_datos(sensor_id):
     except requests.exceptions.RequestException:
         return [], []
     
-# Función para detectar anomalías usando IQR
+# -------------------------------
+# 🚨 DETECCIÓN DE ANOMALÍAS
+# -------------------------------
 def detectar_anomalias(datos):
+    """
+    Detecta anomalías en los datos usando el método IQR.
+    Retorna una lista de valores anómalos si los hay, de lo contrario, None.
+    """
     if len(datos) < 5:
         return None
 
@@ -66,13 +83,18 @@ def detectar_anomalias(datos):
 
     return valores_anomalos if valores_anomalos else None
 
-# Crear callbacks dinámicos para cada sensor
+# -------------------------------
+# 🔄 CALLBACKS PARA ACTUALIZAR GRÁFICOS Y ALERTAS
+# -------------------------------
 @app.callback(
     [Output(f"graph-{sensor}", "figure") for sensor in SENSORES] +
     [Output(f"alert-{sensor}", "children") for sensor in SENSORES],
     Input("interval", "n_intervals")
 )
 def actualizar_graficos(n):
+    """
+    Función que actualiza los gráficos y muestra alertas en caso de detectar anomalías.
+    """
     figuras = []
     alertas = []
     
@@ -118,6 +140,8 @@ def actualizar_graficos(n):
 
     return figuras + alertas
 
-# Ejecutar la app
+# -------------------------------
+# 🚀 EJECUCIÓN DE LA APLICACIÓN
+# -------------------------------
 if __name__ == "__main__":
     app.run_server(debug=True)
