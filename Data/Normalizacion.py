@@ -8,7 +8,7 @@ import plotly.graph_objects as go
 import plotly.express as px
 
 # Configuración de la API y sensores
-api_url = "http://127.0.0.1:5000/lecturas/consultaSensores/"
+api_url = "http://20.115.90.45:80/lecturas/consultaSensores/"
 
 # Configuración de la interfaz
 st.set_page_config(layout="wide")

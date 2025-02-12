@@ -5,7 +5,7 @@ import seaborn as sns
 import requests
 
 # 📌 Configuración de la API
-api_url = "http://127.0.0.1:5000/lecturas/consultaSensores/"
+api_url = "http://20.115.90.45:80/lecturas/consultaSensores/"
 
 # 📊 Diccionario de Sensores: Relaciona el ID con el nombre del sensor
 sensores = {
