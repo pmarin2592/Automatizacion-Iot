@@ -8,7 +8,7 @@ from datetime import datetime
 # 📌 CONFIGURACIÓN DEL SISTEMA DE SENSORES
 # -------------------------------
 # URL de la API para registrar datos de los sensores
-API_URL = "http://127.0.0.1:5000/lecturas/registro"
+API_URL = "http://20.115.90.45:80/lecturas/registro"
 
 # Mapeo de sensores a sus identificadores
 SENSORES = {
