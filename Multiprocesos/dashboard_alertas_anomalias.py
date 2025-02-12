@@ -10,7 +10,7 @@ from datetime import datetime
 # 📌 CONFIGURACIÓN DEL DASHBOARD
 # -------------------------------
 # Configuración de la API y sensores
-API_URL = "http://127.0.0.1:5000/lecturas/consulta/"
+API_URL = "http://20.115.90.45:80/lecturas/consulta/"
 # Diccionario con los sensores disponibles y sus identificadores
 SENSORES = {
     "Temperatura": 1,
